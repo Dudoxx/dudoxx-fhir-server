@@ -17,7 +17,7 @@ This is a **Dudoxx-customized fork** of the official [HAPI FHIR JPA Server Start
 - ✅ **TypeScript Client** - Full-featured REST client with type-safe operations
 - ✅ **Security Interceptors** - Custom interceptors for authentication and partition routing
 
-### 📚 Upstream Credits
+### 📚 Upstream Credits & Synchronization
 
 This project builds upon the excellent work of the HAPI FHIR team:
 
@@ -25,6 +25,8 @@ This project builds upon the excellent work of the HAPI FHIR team:
 - **Main HAPI FHIR Library**: [hapifhir/hapi-fhir](https://github.com/hapifhir/hapi-fhir)
 - **Documentation**: [hapifhir.io](https://hapifhir.io/)
 - **License**: Apache 2.0
+
+**📝 Keeping Up-to-Date**: See [UPSTREAM_SYNC.md](./UPSTREAM_SYNC.md) for detailed instructions on syncing with the official HAPI FHIR repository to receive updates, security patches, and new features.
 
 **Thank you to the HAPI FHIR team and contributors for maintaining this exceptional FHIR implementation!**
 
@@ -83,6 +85,7 @@ The server will be available at:
 - [Authentication Setup](../AUTHENTICATION_STATUS.md)
 - [Production Deployment](../PRODUCTION_SETUP.md)
 - [Development Setup](../DEV_SETUP_GUIDE.md)
+- **[Upstream Sync Guide](./UPSTREAM_SYNC.md)** - Keep your fork updated with official HAPI FHIR releases
 
 ### TypeScript Client
 - [Client Documentation](../ddx-ts-rest-hapifhir/README.md)
