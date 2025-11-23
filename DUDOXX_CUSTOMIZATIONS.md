@@ -5,7 +5,7 @@ This document details all custom modifications made to the upstream HAPI FHIR JP
 ## Overview
 
 **Upstream Repository**: https://github.com/hapifhir/hapi-fhir-jpaserver-starter  
-**Dudoxx Repository**: https://github.com/Dudoxx/ddx-hapifhir-clinics  
+**Dudoxx Repository**: https://github.com/Dudoxx/dudoxx-fhir-server  
 **Maintainer**: Dudoxx UG  
 **Version**: 1.0.0  
 **Date**: November 15, 2025

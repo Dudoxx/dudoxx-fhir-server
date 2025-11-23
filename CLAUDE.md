@@ -1,6 +1,6 @@
 # Claude AI Context - HAPI FHIR Server
 
-**Repository:** ddx-hapifhir-clinics  
+**Repository:** dudoxx-fhir-server  
 **Version:** 1.1.0  
 **Date:** November 16, 2025  
 **Owner:** Dudoxx UG  
@@ -60,7 +60,7 @@ All requests require:
 ## 📁 Project Structure
 
 ```
-ddx-hapifhir-clinics/
+dudoxx-fhir-server/
 ├── src/
 │   ├── main/
 │   │   ├── java/

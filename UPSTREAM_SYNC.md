@@ -9,7 +9,7 @@
 This repository is a **customized fork** of the official HAPI FHIR JPA Server Starter with two Git remotes:
 
 ```bash
-origin    git@github.com:Dudoxx/ddx-hapifhir-clinics.git
+origin    git@github.com:Dudoxx/dudoxx-fhir-server.git
 upstream  https://github.com/hapifhir/hapi-fhir-jpaserver-starter.git
 ```
 
@@ -17,7 +17,7 @@ upstream  https://github.com/hapifhir/hapi-fhir-jpaserver-starter.git
 
 | Remote | Purpose | URL |
 |--------|---------|-----|
-| **origin** | Your Dudoxx customizations | `git@github.com:Dudoxx/ddx-hapifhir-clinics.git` |
+| **origin** | Your Dudoxx customizations | `git@github.com:Dudoxx/dudoxx-fhir-server.git` |
 | **upstream** | Official HAPI FHIR source | `https://github.com/hapifhir/hapi-fhir-jpaserver-starter.git` |
 
 ---
@@ -32,8 +32,8 @@ git remote -v
 
 **Expected output:**
 ```
-origin    git@github.com:Dudoxx/ddx-hapifhir-clinics.git (fetch)
-origin    git@github.com:Dudoxx/ddx-hapifhir-clinics.git (push)
+origin    git@github.com:Dudoxx/dudoxx-fhir-server.git (fetch)
+origin    git@github.com:Dudoxx/dudoxx-fhir-server.git (push)
 upstream  https://github.com/hapifhir/hapi-fhir-jpaserver-starter.git (fetch)
 upstream  https://github.com/hapifhir/hapi-fhir-jpaserver-starter.git (push)
 ```

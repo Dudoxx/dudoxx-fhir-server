@@ -88,9 +88,9 @@ The server will be available at:
 - **[Upstream Sync Guide](./UPSTREAM_SYNC.md)** - Keep your fork updated with official HAPI FHIR releases
 
 ### TypeScript Client
-- [Client Documentation](../ddx-ts-rest-hapifhir/README.md)
-- [API Reference](../ddx-ts-rest-hapifhir/REFERENCE_GUIDE.md)
-- [Usage Examples](../ddx-ts-rest-hapifhir/EXAMPLES_SUMMARY.md)
+- [Client Documentation](../dudoxx-fhir-sdk-ts/README.md)
+- [API Reference](../dudoxx-fhir-sdk-ts/REFERENCE_GUIDE.md)
+- [Usage Examples](../dudoxx-fhir-sdk-ts/EXAMPLES_SUMMARY.md)
 
 ---
 
@@ -226,7 +226,7 @@ curl -H "Authorization: Bearer ddx-api-token-2024" \
 ### Build from Source
 
 ```bash
-cd ddx-hapifhir-clinics
+cd dudoxx-fhir-server
 mvn clean package -DskipTests
 ```
 
@@ -337,7 +337,7 @@ See [LICENSE](LICENSE) for details.
 
 ### Dudoxx Resources
 - **Organization**: [Dudoxx UG](https://dudoxx.com)
-- **TypeScript Client**: [ddx-ts-rest-hapifhir](../ddx-ts-rest-hapifhir/)
+- **TypeScript Client**: [dudoxx-fhir-sdk-ts](../dudoxx-fhir-sdk-ts/)
 - **Documentation**: [../docs/](../docs/)
 
 ### Upstream HAPI FHIR
