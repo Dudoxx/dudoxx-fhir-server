@@ -1,0 +1,32 @@
+version: "3.8"
+services:
+  hapi-fhir-jpaserver-start:
+    build: .
+    container_name: hapi-fhir-jpaserver
+    restart: unless-stopped
+    environment:
+      # Use existing PostgreSQL on port 15432
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://host.docker.internal:15432/hapi"
+      SPRING_DATASOURCE_USERNAME: "dudoxx_user"
+      SPRING_DATASOURCE_PASSWORD: "admin"
+      SPRING_DATASOURCE_DRIVERCLASSNAME: "org.postgresql.Driver"
+      # HAPI FHIR Configuration
+      HAPI_FHIR_SERVER_ADDRESS: "http://localhost:8080/fhir"
+      HAPI_FHIR_AUTH_ENABLED: "true"
+      HAPI_FHIR_AUTH_API_TOKEN: "ddx-api-token-2024"
+    ports:
+      - "8080:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - hapi-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+networks:
+  hapi-network:
+    external: true
