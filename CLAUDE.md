@@ -1,10 +1,10 @@
 # Claude AI Context - HAPI FHIR Server
 
-**Repository:** dudoxx-fhir-server  
-**Version:** 1.1.0  
-**Date:** November 16, 2025  
-**Owner:** Dudoxx UG  
-**Latest Update:** Startup scripts and alternative configuration
+**Repository:** dudoxx-fhir-server
+**Version:** 1.1.0
+**Date:** December 8, 2025
+**Owner:** Dudoxx UG
+**Latest Update:** MCP server integration, multi-tenancy refinements, and current codebase analysis
 
 ---
 
@@ -22,6 +22,7 @@
 | Maven | 3.8+ | Build tool |
 | PostgreSQL | 12+ | Database |
 | MinIO | Latest | Binary storage (S3-compatible) |
+| MCP Server | Integrated | AI-powered FHIR operations with 9 tools |
 
 ### Ports & Communication
 
@@ -70,12 +71,19 @@ dudoxx-fhir-server/
 │   │   │       ├── interceptor/
 │   │   │       │   ├── ApiTokenAuthInterceptor.java
 │   │   │       │   └── ClinicPartitionInterceptor.java
+│   │   │       ├── rest/
+│   │   │       │   └── server/
+│   │   │       │       ├── McpBridge.java
+│   │   │       │       ├── McpCdsBridge.java
+│   │   │       │       └── McpFhirBridge.java
 │   │   │       └── AppProperties.java
 │   │   │
 │   │   └── resources/
 │   │       ├── application.yaml           # FHIR server configuration
+│   │       ├── application-cds.yaml       # CDS Hooks configuration
 │   │       ├── init-partitions.sql        # Partition initialization
-│   │       └── logback.xml                # Logging config
+│   │       ├── logback.xml                # Logging config
+│   │       └── mdm-rules.json             # Master Data Management rules
 │   │
 │   └── test/
 │       └── java/
@@ -120,25 +128,25 @@ hapi:
     # Version and Base URL
     fhir_version: R4
     server_address: http://localhost:8080/fhir
-    
+
     # Authentication
     auth:
       enabled: true
       api_token: ddx-api-token-2024
-    
+
     # Multi-Tenancy (Partitioning)
     partitioning:
       enabled: true
       allow_references_across_partitions: true  # For system operations
       partitioning_include_in_search_hashes: true
       default_partition_id: 0
-    
+
     # CORS
     cors:
       enabled: true
       allowed_origin:
         - "*"  # Change in production
-    
+
     # Features
     allow_external_references: true
     allow_cascading_deletes: true
@@ -171,7 +179,7 @@ Each clinic has its own partition in PostgreSQL:
 ```sql
 -- Run on first startup
 INSERT INTO HFJ_PARTITION (PART_ID, PART_NAME, PART_DESC)
-VALUES 
+VALUES
   (0, 'DEFAULT', 'Default System Partition'),
   (1, 'HAMBURG', 'Hamburg Clinic'),
   (2, 'BERLIN', 'Berlin Clinic'),
@@ -186,7 +194,7 @@ ON CONFLICT (PART_ID) DO NOTHING;
 
 ```java
 public class ClinicPartitionInterceptor {
-    private static final Map<String, Integer> CLINIC_PARTITION_MAP = 
+    private static final Map<String, Integer> CLINIC_PARTITION_MAP =
         Map.of(
             "ddx-hamburg-clinic", 1,
             "ddx-berlin-clinic", 2,
@@ -195,7 +203,7 @@ public class ClinicPartitionInterceptor {
             "ddx-cologne-clinic", 5,
             "ddx-shared-clinic", 6
         );
-    
+
     @Hook(Pointcut.STORAGE_PARTITION_IDENTIFY_READ)
     public RequestPartitionId identifyRead(RequestDetails requestDetails) {
         String clinicId = requestDetails.getHeader("X-Clinic-ID");
@@ -203,6 +211,45 @@ public class ClinicPartitionInterceptor {
         return RequestPartitionId.fromPartitionId(partitionId);
     }
 }
+```
+
+---
+
+## 🤖 AI Integration with MCP Server
+
+### MCP Architecture
+
+The HAPI FHIR Server integrates with AI agents through the Model Context Protocol (MCP), providing 9 specialized tools for FHIR operations:
+
+**MCP Tools:**
+1. **fhir_search** - Search FHIR resources with advanced filtering
+2. **fhir_create** - Create new FHIR resources
+3. **fhir_read** - Read specific FHIR resources by ID
+4. **fhir_update** - Update existing FHIR resources
+5. **fhir_delete** - Delete FHIR resources
+6. **fhir_history** - Retrieve resource history/versions
+7. **fhir_validate** - Validate FHIR resource compliance
+8. **fhir_batch** - Execute batch operations
+9. **fhir_capabilities** - Get server capability statement
+
+**MCP Bridge Classes:**
+- `McpFhirBridge.java` - Core FHIR operations bridge
+- `McpCdsBridge.java` - Clinical Decision Support integration
+- `McpBridge.java` - Base MCP protocol implementation
+
+### CDS Hooks Integration
+
+**Configuration:** `application-cds.yaml`
+- Clinical Decision Support hooks for AI-powered clinical guidance
+- Integration with external CDS services
+- Real-time clinical decision support during patient care
+
+### AI Workflow
+
+```
+AI Agent → MCP Server → HAPI FHIR → PostgreSQL Partition
+    ↓
+Response ← FHIR Data ← Clinic-Specific Data
 ```
 
 ---
@@ -298,7 +345,7 @@ hapi:
     validation:
       requests_enabled: true
       responses_enabled: true
-    
+
     # Example: Enable full-text search
     lasn:
       enabled: true
@@ -378,9 +425,9 @@ psql -U dudoxx_user -d ddx_hapifhir -c "\dt"
 
 ```bash
 psql -U dudoxx_user -d ddx_hapifhir -c "
-SELECT 
-  schemaname, 
-  tablename, 
+SELECT
+  schemaname,
+  tablename,
   n_tup_ins as inserts,
   n_tup_upd as updates,
   n_tup_del as deletes
@@ -443,5 +490,5 @@ hapi:
 
 ---
 
-**Maintained by:** Dudoxx UG  
-**Last Updated:** November 16, 2025
+**Maintained by:** Dudoxx UG
+**Last Updated:** December 8, 2025
