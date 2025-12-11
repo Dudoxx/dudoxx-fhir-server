@@ -1,10 +1,11 @@
 package ca.uhn.fhir.jpa.starter.interceptor;
 
-import ca.uhn.fhir.rest.api.server.RequestDetails;
+import ca.uhn.fhir.jpa.starter.tenant.TenantRegistryService;
 import ca.uhn.fhir.rest.server.exceptions.AuthenticationException;
 import ca.uhn.fhir.rest.server.interceptor.InterceptorAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -12,10 +13,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Simple API Token Authentication Interceptor
- * 
+ * Dynamic API Token Authentication Interceptor
+ *
  * This interceptor checks for a valid API token in the Authorization header.
- * 
+ *
+ * MAJOR UPDATE (Dec 2025): Now supports database-backed API tokens.
+ * Token priority:
+ * 1. Database (global_config table, key: "fhir.api_token")
+ * 2. Environment variable (HAPI_FHIR_AUTH_API_TOKEN)
+ * 3. YAML config (hapi.fhir.auth.api_token)
+ * 4. Default fallback (ddx-api-token-2024)
+ *
  * Usage:
  *   Authorization: Bearer <api-token>
  */
@@ -24,16 +32,46 @@ public class ApiTokenAuthInterceptor extends InterceptorAdapter {
 
     private static final Logger ourLog = LoggerFactory.getLogger(ApiTokenAuthInterceptor.class);
 
+    @Autowired
+    private TenantRegistryService tenantRegistry;
+
     @Value("${hapi.fhir.auth.api_token:ddx-api-token-2024}")
-    private String validApiToken;
+    private String configApiToken;
 
     @Value("${hapi.fhir.auth.enabled:false}")
     private boolean authEnabled;
 
+    /**
+     * Get the valid API token with priority:
+     * 1. Database (if available)
+     * 2. Config/Environment
+     */
+    private String getValidApiToken() {
+        // Try database first
+        String dbToken = tenantRegistry.getFhirApiToken();
+        if (dbToken != null && !dbToken.isEmpty()) {
+            return dbToken;
+        }
+        // Fall back to config
+        return configApiToken;
+    }
+
+    /**
+     * Check if auth is enabled (from DB or config)
+     */
+    private boolean isAuthEnabled() {
+        // Try database first
+        if (tenantRegistry != null && tenantRegistry.isFhirAuthEnabled()) {
+            return true;
+        }
+        // Fall back to config
+        return authEnabled;
+    }
+
     @Override
     public boolean incomingRequestPreProcessed(HttpServletRequest theRequest, HttpServletResponse theResponse) {
         // Skip auth if not enabled
-        if (!authEnabled) {
+        if (!isAuthEnabled()) {
             return true;
         }
 
@@ -47,7 +85,7 @@ public class ApiTokenAuthInterceptor extends InterceptorAdapter {
 
         // Check Authorization header
         String authHeader = theRequest.getHeader("Authorization");
-        
+
         if (authHeader == null || authHeader.isEmpty()) {
             ourLog.warn("Missing Authorization header for: {}", requestURI);
             throw new AuthenticationException("Missing Authorization header. Use: Authorization: Bearer <api-token>");
@@ -61,8 +99,9 @@ public class ApiTokenAuthInterceptor extends InterceptorAdapter {
 
         // Extract and validate token
         String token = authHeader.substring(7).trim();
-        
-        if (!validApiToken.equals(token)) {
+        String validToken = getValidApiToken();
+
+        if (!validToken.equals(token)) {
             ourLog.warn("Invalid API token for: {}", requestURI);
             throw new AuthenticationException("Invalid API token");
         }
@@ -73,7 +112,7 @@ public class ApiTokenAuthInterceptor extends InterceptorAdapter {
 
     /**
      * Check if the endpoint is public (doesn't require authentication)
-     * 
+     *
      * Public endpoints include:
      * - /metadata (FHIR CapabilityStatement)
      * - /actuator/health (Health check)
@@ -82,9 +121,10 @@ public class ApiTokenAuthInterceptor extends InterceptorAdapter {
      * - /swagger-ui/ (Swagger UI interface)
      * - /api-docs (OpenAPI documentation)
      * - /webjars/ (Swagger UI static resources)
+     * - /mcp/ (MCP server endpoints)
      */
     private boolean isPublicEndpoint(String uri) {
-        return uri.contains("/metadata") || 
+        return uri.contains("/metadata") ||
                uri.contains("/actuator/health") ||
                uri.contains("/.well-known/") ||
                uri.contains("/oauth/") ||
@@ -92,6 +132,7 @@ public class ApiTokenAuthInterceptor extends InterceptorAdapter {
                uri.contains("/swagger-ui.html") ||
                uri.contains("/api-docs") ||
                uri.contains("/webjars/") ||
-               uri.contains("/swagger-resources/");
+               uri.contains("/swagger-resources/") ||
+               uri.contains("/mcp/");
     }
 }

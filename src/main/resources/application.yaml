@@ -97,17 +97,19 @@ spring:
     fail-on-missing-locations: false
 
   # -------------------------------------------------------------------------------
-  # PostgreSQL Configuration for Local Installation
+  # PostgreSQL Configuration - Primary FHIR Database
+  # Environment variables: PG_HOST, PG_PORT, PG_USER, PG_PASSWORD, PG_DATABASE_FHIR
   # -------------------------------------------------------------------------------
   datasource:
-    url: jdbc:postgresql://localhost:5432/ddx_hapifhir
-    username: dudoxx_user
-    password: admin
+    # Primary datasource for HAPI FHIR (ddx_hapifhir)
+    url: jdbc:postgresql://${PG_HOST:localhost}:${PG_PORT:5432}/${PG_DATABASE_FHIR:ddx_hapifhir}
+    username: ${PG_USER:dudoxx_user}
+    password: ${PG_PASSWORD:admin}
     driver-class-name: org.postgresql.Driver
     hikari:
       # Connection Pool Configuration
-      maximum-pool-size: 10
-      minimum-idle: 5
+      maximum-pool-size: ${FHIR_POOL_MAX_SIZE:10}
+      minimum-idle: ${FHIR_POOL_MIN_IDLE:5}
       connection-timeout: 30000           # 30 seconds
       idle-timeout: 600000                # 10 minutes
       max-lifetime: 1800000               # 30 minutes
@@ -119,6 +121,25 @@ spring:
       register-mbeans: true
       # Transaction Isolation
       transaction-isolation: TRANSACTION_READ_COMMITTED
+
+  # -------------------------------------------------------------------------------
+  # Secondary Datasource for Tenant Registry (NestJS ddx_clinic_fhir database)
+  # Environment variables: PG_HOST, PG_PORT, PG_USER, PG_PASSWORD, PG_DATABASE_MAIN
+  # -------------------------------------------------------------------------------
+  tenant-datasource:
+    url: jdbc:postgresql://${PG_HOST:localhost}:${PG_PORT:5432}/${PG_DATABASE_MAIN:ddx_clinic_fhir}
+    username: ${PG_USER:dudoxx_user}
+    password: ${PG_PASSWORD:admin}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${TENANT_POOL_MAX_SIZE:3}
+      minimum-idle: ${TENANT_POOL_MIN_IDLE:1}
+      connection-timeout: 10000
+      idle-timeout: 300000
+      max-lifetime: 900000
+      auto-commit: true
+      pool-name: TenantRegistryPool
+      connection-test-query: SELECT 1
 
   jpa:
     open-in-view: false                          # Disable open session in view (not needed for API)
@@ -155,18 +176,25 @@ hapi:
     fhir_version: R4                            # DSTU2 | DSTU3 | R4 | R5
     
     # -------------------------------------------------------------------------------
-    # Custom Bean Packages (REQUIRED for ClinicPartitionInterceptor)
+    # Custom Bean Packages (REQUIRED for interceptors and tenant registry)
     # -------------------------------------------------------------------------------
-    custom_bean_packages: ca.uhn.fhir.jpa.starter.interceptor
+    custom_bean_packages: ca.uhn.fhir.jpa.starter.interceptor,ca.uhn.fhir.jpa.starter.tenant
+
+    # -------------------------------------------------------------------------------
+    # Dynamic Tenant Registry Configuration
+    # -------------------------------------------------------------------------------
+    tenant:
+      cache_refresh_seconds: 60              # Refresh tenant cache every 60 seconds
     
     # -------------------------------------------------------------------------------
     # Authentication & Authorization
+    # Environment variables: FHIR_AUTH_ENABLED, FHIR_API_TOKEN, FHIR_BASE_URL
     # -------------------------------------------------------------------------------
     auth:
-      enabled: true                             # Set to true to enable API token authentication
-      api_token: ddx-api-token-2024            # API token for Bearer authentication
+      enabled: ${FHIR_AUTH_ENABLED:true}        # Set to true to enable API token authentication
+      api_token: ${FHIR_API_TOKEN:ddx-api-token-2024}  # API token for Bearer authentication
       # For OAuth 2.0, configure external OAuth provider (Keycloak, Auth0, etc.)
-    server_address: http://localhost:8080/fhir  # Server base URL
+    server_address: ${FHIR_BASE_URL:http://localhost:8080/fhir}  # Server base URL
 
     # -------------------------------------------------------------------------------
     # B. Implementation Guides (IG) & Package Install

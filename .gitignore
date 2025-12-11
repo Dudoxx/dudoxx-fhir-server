@@ -167,3 +167,8 @@ Temporary Items
 
 # Helm Chart dependencies
 **/charts/*.tgz
+
+# Environment files (keep .env.example, ignore actual .env)
+.env
+.env.local
+.env.*.local

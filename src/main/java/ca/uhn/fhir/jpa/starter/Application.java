@@ -23,9 +23,11 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Import;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @ServletComponentScan(basePackageClasses = {RestfulServer.class})
 @SpringBootApplication(exclude = {ThymeleafAutoConfiguration.class})
+@EnableScheduling
 @Import({
 	StarterCrR4Config.class,
 	StarterCrDstu3Config.class,
