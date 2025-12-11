@@ -5,7 +5,7 @@ This document details all custom modifications made to the upstream HAPI FHIR JP
 ## Overview
 
 **Upstream Repository**: https://github.com/hapifhir/hapi-fhir-jpaserver-starter  
-**Dudoxx Repository**: https://github.com/Dudoxx/dudoxx-fhir-server  
+**Dudoxx Repository**: https://github.com/Dudoxx/ddx-fhir  
 **Maintainer**: Dudoxx UG  
 **Version**: 1.0.0  
 **Date**: November 15, 2025
@@ -108,7 +108,7 @@ datasource:
 **After**: PostgreSQL
 ```yaml
 datasource:
-  url: jdbc:postgresql://localhost:5432/ddx_hapifhir
+  url: jdbc:postgresql://localhost:5432/ddx_fhir_core
   username: dudoxx_user
   password: admin
   driver-class-name: org.postgresql.Driver
@@ -192,7 +192,7 @@ Client Request
 ### Database Schema
 
 ```
-PostgreSQL: ddx_hapifhir
+PostgreSQL: ddx_fhir_core
 │
 ├─ HFJ_PARTITION (Partition definitions)
 │  ├─ PART_ID=0, PART_NAME=DEFAULT
@@ -227,7 +227,7 @@ export FHIR_API_TOKEN=ddx-api-token-2024
 ```bash
 export FHIR_BASE_URL=https://fhir.dudoxx.com/fhir
 export FHIR_API_TOKEN=<strong-token-from-secrets-manager>
-export DB_URL=jdbc:postgresql://<db-host>:5432/ddx_hapifhir
+export DB_URL=jdbc:postgresql://<db-host>:5432/ddx_fhir_core
 export DB_USERNAME=<db-user>
 export DB_PASSWORD=<db-password-from-secrets-manager>
 ```
@@ -236,16 +236,16 @@ export DB_PASSWORD=<db-password-from-secrets-manager>
 
 ```bash
 # Create database
-createdb -U postgres ddx_hapifhir
+createdb -U postgres ddx_fhir_core
 
 # Create user
 psql -U postgres -c "CREATE USER dudoxx_user WITH PASSWORD 'admin';"
 
 # Grant privileges
-psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE ddx_hapifhir TO dudoxx_user;"
+psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE ddx_fhir_core TO dudoxx_user;"
 
 # Initialize partitions
-psql -U dudoxx_user -d ddx_hapifhir -f src/main/resources/init-partitions.sql
+psql -U dudoxx_user -d ddx_fhir_core -f src/main/resources/init-partitions.sql
 ```
 
 ---

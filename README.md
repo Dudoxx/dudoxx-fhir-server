@@ -55,12 +55,12 @@ This project builds upon the excellent work of the HAPI FHIR team:
 
 ```bash
 # Create PostgreSQL database
-psql -U postgres -c "CREATE DATABASE ddx_hapifhir;"
+psql -U postgres -c "CREATE DATABASE ddx_fhir_core;"
 psql -U postgres -c "CREATE USER dudoxx_user WITH PASSWORD 'admin';"
-psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE ddx_hapifhir TO dudoxx_user;"
+psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE ddx_fhir_core TO dudoxx_user;"
 
 # Initialize partitions
-psql -U dudoxx_user -d ddx_hapifhir -f src/main/resources/init-partitions.sql
+psql -U dudoxx_user -d ddx_fhir_core -f src/main/resources/init-partitions.sql
 ```
 
 ### 2. Start the Server
@@ -98,9 +98,9 @@ The server will be available at:
 - **[Upstream Sync Guide](./UPSTREAM_SYNC.md)** - Keep your fork updated with official HAPI FHIR releases
 
 ### TypeScript Client
-- [Client Documentation](../dudoxx-fhir-sdk-ts/README.md)
-- [API Reference](../dudoxx-fhir-sdk-ts/REFERENCE_GUIDE.md)
-- [Usage Examples](../dudoxx-fhir-sdk-ts/EXAMPLES_SUMMARY.md)
+- [Client Documentation](../ddx-sdk-fhir/README.md)
+- [API Reference](../ddx-sdk-fhir/REFERENCE_GUIDE.md)
+- [Usage Examples](../ddx-sdk-fhir/EXAMPLES_SUMMARY.md)
 
 ---
 
@@ -181,7 +181,7 @@ hapi:
 ```yaml
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/ddx_hapifhir
+    url: jdbc:postgresql://localhost:5432/ddx_fhir_core
     username: dudoxx_user
     password: admin
     driver-class-name: org.postgresql.Driver
@@ -236,7 +236,7 @@ curl -H "Authorization: Bearer ddx-api-token-2024" \
 ### Build from Source
 
 ```bash
-cd dudoxx-fhir-server
+cd ddx-fhir
 mvn clean package -DskipTests
 ```
 
@@ -347,7 +347,7 @@ See [LICENSE](LICENSE) for details.
 
 ### Dudoxx Resources
 - **Organization**: [Dudoxx UG](https://dudoxx.com)
-- **TypeScript Client**: [dudoxx-fhir-sdk-ts](../dudoxx-fhir-sdk-ts/)
+- **TypeScript Client**: [ddx-sdk-fhir](../ddx-sdk-fhir/)
 - **Documentation**: [../docs/](../docs/)
 
 ### Upstream HAPI FHIR

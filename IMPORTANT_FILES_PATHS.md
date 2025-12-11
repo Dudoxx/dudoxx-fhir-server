@@ -72,7 +72,7 @@
 ## Directory Structure
 
 ```
-dudoxx-fhir-server/
+ddx-fhir/
 ├── src/main/java/ca/uhn/fhir/jpa/starter/
 │   ├── common/
 │   │   └── StarterJpaConfig.java           # Main JPA configuration
@@ -113,7 +113,7 @@ dudoxx-fhir-server/
 # Database
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/ddx_hapifhir
+    url: jdbc:postgresql://localhost:5432/ddx_fhir_core
     username: dudoxx_user
     password: [REDACTED]
 

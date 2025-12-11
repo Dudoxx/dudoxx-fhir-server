@@ -37,7 +37,7 @@ mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8081
 
 ```bash
 # Test PostgreSQL
-psql -U dudoxx_user -h localhost -p 5432 -d ddx_hapifhir
+psql -U dudoxx_user -h localhost -p 5432 -d ddx_fhir_core
 
 # Verify PostgreSQL is running
 pg_isready -h localhost -p 5432
@@ -45,7 +45,7 @@ pg_isready -h localhost -p 5432
 # Check credentials in application.yaml
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/ddx_hapifhir
+    url: jdbc:postgresql://localhost:5432/ddx_fhir_core
     username: dudoxx_user
     password: admin
 ```
@@ -56,10 +56,10 @@ spring:
 
 ```bash
 # Check partitions exist
-psql -U dudoxx_user -d ddx_hapifhir -c "SELECT * FROM HFJ_PARTITION;"
+psql -U dudoxx_user -d ddx_fhir_core -c "SELECT * FROM HFJ_PARTITION;"
 
 # Re-run initialization
-psql -U dudoxx_user -d ddx_hapifhir -f src/main/resources/init-partitions.sql
+psql -U dudoxx_user -d ddx_fhir_core -f src/main/resources/init-partitions.sql
 ```
 
 ---

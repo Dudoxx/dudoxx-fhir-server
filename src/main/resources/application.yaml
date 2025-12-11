@@ -17,24 +17,28 @@ logging:
   level:
     # Root logger
     root: INFO
-    
-    # Suppress HAPI-1220 retry errors during search parameter cache warmup
-    # These errors are cosmetic and non-critical (see PARTITION_CONFIGURATION_FINAL.md)
-    ca.uhn.fhir.jpa.searchparam.retry.Retrier: OFF
-    
-    # Enable detailed REST endpoint logging (reduced from DEBUG to INFO for production)
-    ca.uhn.fhir.rest.server: INFO                     # REST server operations
-    ca.uhn.fhir.rest.server.interceptor: INFO          # Interceptors (auth, logging, etc.)
-    ca.uhn.fhir.rest.server.RestfulServer: INFO        # REST server requests/responses
-    ca.uhn.fhir.rest.api.server: INFO                  # REST API operations
 
-    # Enable request/response logging (reduced from DEBUG to INFO for production)
-    org.springframework.web.servlet.mvc: INFO          # Spring MVC request mapping
+    # Environment and DataSource logging (DEBUG to see what's loaded)
+    me.paulschwarz.springdotenv: DEBUG                 # spring-dotenv loading
+    com.zaxxer.hikari.HikariConfig: DEBUG              # HikariCP configuration
+    org.springframework.boot.context.config: DEBUG     # Spring config loading
+
+    # Suppress HAPI-1220 retry errors during search parameter cache warmup
+    ca.uhn.fhir.jpa.searchparam.retry.Retrier: OFF
+
+    # REST endpoint logging
+    ca.uhn.fhir.rest.server: INFO
+    ca.uhn.fhir.rest.server.interceptor: INFO
+    ca.uhn.fhir.rest.server.RestfulServer: INFO
+    ca.uhn.fhir.rest.api.server: INFO
+
+    # Spring MVC logging
+    org.springframework.web.servlet.mvc: INFO
     org.springframework.web.filter.CommonsRequestLoggingFilter: INFO
-    
-    # Enable search parameter logging
-    ca.uhn.fhir.jpa.searchparam: INFO                 # Search parameter resolution
-    
+
+    # Search parameter logging
+    ca.uhn.fhir.jpa.searchparam: INFO
+
     # Enable SQL logging (optional - can be verbose)
     # org.hibernate.SQL: DEBUG
     # org.hibernate.type.descriptor.sql.BasicBinder: TRACE
@@ -98,11 +102,11 @@ spring:
 
   # -------------------------------------------------------------------------------
   # PostgreSQL Configuration - Primary FHIR Database
-  # Environment variables: PG_HOST, PG_PORT, PG_USER, PG_PASSWORD, PG_DATABASE_FHIR
+  # Environment variables: PG_HOST, PG_PORT, PG_USER, PG_PASSWORD, PG_DATABASE
   # -------------------------------------------------------------------------------
   datasource:
-    # Primary datasource for HAPI FHIR (ddx_hapifhir)
-    url: jdbc:postgresql://${PG_HOST:localhost}:${PG_PORT:5432}/${PG_DATABASE_FHIR:ddx_hapifhir}
+    # Primary datasource for HAPI FHIR (ddx_fhir_core)
+    url: jdbc:postgresql://${PG_HOST:localhost}:${PG_PORT:5432}/${PG_DATABASE:ddx_fhir_core}
     username: ${PG_USER:dudoxx_user}
     password: ${PG_PASSWORD:admin}
     driver-class-name: org.postgresql.Driver
@@ -123,11 +127,11 @@ spring:
       transaction-isolation: TRANSACTION_READ_COMMITTED
 
   # -------------------------------------------------------------------------------
-  # Secondary Datasource for Tenant Registry (NestJS ddx_clinic_fhir database)
-  # Environment variables: PG_HOST, PG_PORT, PG_USER, PG_PASSWORD, PG_DATABASE_MAIN
+  # Secondary Datasource for Tenant Registry (NestJS ddx_api_main database)
+  # Environment variables: PG_HOST, PG_PORT, PG_USER, PG_PASSWORD, PG_DATABASE_TENANT
   # -------------------------------------------------------------------------------
   tenant-datasource:
-    url: jdbc:postgresql://${PG_HOST:localhost}:${PG_PORT:5432}/${PG_DATABASE_MAIN:ddx_clinic_fhir}
+    url: jdbc:postgresql://${PG_HOST:localhost}:${PG_PORT:5432}/${PG_DATABASE_TENANT:ddx_api_main}
     username: ${PG_USER:dudoxx_user}
     password: ${PG_PASSWORD:admin}
     driver-class-name: org.postgresql.Driver
@@ -178,7 +182,7 @@ hapi:
     # -------------------------------------------------------------------------------
     # Custom Bean Packages (REQUIRED for interceptors and tenant registry)
     # -------------------------------------------------------------------------------
-    custom_bean_packages: ca.uhn.fhir.jpa.starter.interceptor,ca.uhn.fhir.jpa.starter.tenant
+    custom_bean_packages: ca.uhn.fhir.jpa.starter.interceptor,ca.uhn.fhir.jpa.starter.tenant,ca.uhn.fhir.jpa.starter.datasource
 
     # -------------------------------------------------------------------------------
     # Dynamic Tenant Registry Configuration

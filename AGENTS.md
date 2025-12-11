@@ -1,6 +1,6 @@
 # AI Agent Configuration - HAPI FHIR Server
 
-Project-specific guidance for `dudoxx-fhir-server` (HAPI FHIR JPA). Keep auth + partition interceptors intact and preserve partitioned data isolation.
+Project-specific guidance for `ddx-fhir` (HAPI FHIR JPA). Keep auth + partition interceptors intact and preserve partitioned data isolation.
 
 **Version:** HAPI 8.4.0 / Java 17  
 **Last Updated:** 2025-11-24
@@ -9,7 +9,7 @@ Project-specific guidance for `dudoxx-fhir-server` (HAPI FHIR JPA). Keep auth + 
 
 ## Stack & Runtime Facts
 - Spring Boot + HAPI FHIR JPA Server (R4) on port 8080, context path `/fhir`
-- Database: PostgreSQL `ddx_hapifhir`
+- Database: PostgreSQL `ddx_fhir_core`
 - Storage: MinIO (binary storage enabled)
 - Auth: `ApiTokenAuthInterceptor` using Bearer token (`hapi.fhir.auth.api_token`, default `ddx-api-token-2024`)
 - Tenancy: `ClinicPartitionInterceptor` with partition map (default=0, Hamburg=1, Berlin=2, Munich=3, Frankfurt=4, Cologne=5, Shared=6)

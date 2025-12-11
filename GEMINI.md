@@ -1,6 +1,6 @@
 # Gemini AI Assistant Context - HAPI FHIR Server
 
-**Repository:** dudoxx-fhir-server  
+**Repository:** ddx-fhir  
 **Version:** 1.0.0  
 **Date:** November 24, 2025  
 **Owner:** Dudoxx UG  
@@ -62,7 +62,7 @@ You are a **senior Java/Spring Boot developer** working on the HAPI FHIR Server 
 
 4. **FOURTH**: Read `CLAUDE.md` (this repository)
    - Purpose: FHIR server configuration, interceptors
-   - Confirm: "Read dudoxx-fhir-server/CLAUDE.md. FHIR rules: [list 2]."
+   - Confirm: "Read ddx-fhir/CLAUDE.md. FHIR rules: [list 2]."
 
 **Failure to read will cause:**
 - Partition errors (HAPI-1220)
@@ -279,7 +279,7 @@ hapi:
 ✅ "Configuration updated. Test with: curl http://localhost:8080/fhir/metadata"
 
 ❌ "Partition added."  
-✅ "Partition SQL updated. Run: psql -U dudoxx_user -d ddx_hapifhir -f init-partitions.sql"
+✅ "Partition SQL updated. Run: psql -U dudoxx_user -d ddx_fhir_core -f init-partitions.sql"
 
 ❌ "Interceptor working."  
 ✅ "Interceptor added. Test with: curl -H 'X-Clinic-ID: ddx-hamburg-clinic' ..."
@@ -336,7 +336,7 @@ private static final Map<String, Integer> CLINIC_PARTITION_MAP = Map.of(
 
 3. **Run SQL**:
 ```bash
-psql -U dudoxx_user -d ddx_hapifhir -f src/main/resources/init-partitions.sql
+psql -U dudoxx_user -d ddx_fhir_core -f src/main/resources/init-partitions.sql
 ```
 
 4. **Rebuild and restart**:
@@ -506,7 +506,7 @@ mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8081
 
 ```bash
 # Test PostgreSQL
-psql -U dudoxx_user -h localhost -p 5432 -d ddx_hapifhir
+psql -U dudoxx_user -h localhost -p 5432 -d ddx_fhir_core
 
 # Check if running
 pg_isready -h localhost -p 5432
@@ -518,10 +518,10 @@ pg_isready -h localhost -p 5432
 
 ```bash
 # Check partitions exist
-psql -U dudoxx_user -d ddx_hapifhir -c "SELECT * FROM HFJ_PARTITION;"
+psql -U dudoxx_user -d ddx_fhir_core -c "SELECT * FROM HFJ_PARTITION;"
 
 # Re-run initialization
-psql -U dudoxx_user -d ddx_hapifhir -f src/main/resources/init-partitions.sql
+psql -U dudoxx_user -d ddx_fhir_core -f src/main/resources/init-partitions.sql
 ```
 
 ---
@@ -539,13 +539,13 @@ psql -U dudoxx_user -d ddx_hapifhir -f src/main/resources/init-partitions.sql
 ### Viewing Tables
 
 ```bash
-psql -U dudoxx_user -d ddx_hapifhir -c "\dt"
+psql -U dudoxx_user -d ddx_fhir_core -c "\dt"
 ```
 
 ### Table Statistics
 
 ```bash
-psql -U dudoxx_user -d ddx_hapifhir -c "
+psql -U dudoxx_user -d ddx_fhir_core -c "
 SELECT 
   tablename, 
   n_tup_ins as inserts,
@@ -568,7 +568,7 @@ LIMIT 10;
 ✅ I have read IMPORTANT_PATHS_FILES.md
 ✅ I have read ARCHITECTURE.md
 ✅ I have read global CLAUDE.md
-✅ I have read dudoxx-fhir-server/CLAUDE.md
+✅ I have read ddx-fhir/CLAUDE.md
 ✅ I understand multi-tenancy partitioning
 ✅ I understand interceptor requirements
 ✅ I will NOT remove authentication interceptors

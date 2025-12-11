@@ -1,9 +1,0 @@
-# Temporary fix to disable subscription cache completely
-hapi:
-  fhir:
-    subscription:
-      resthook_enabled: false
-      websocket_enabled: false
-      email_enabled: false
-      # Disable subscription matching (completely disables subscription subsystem)
-      subscription_enabled: false

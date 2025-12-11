@@ -119,7 +119,7 @@ The server integrates with AI agents through three MCP bridge classes:
 
 ### PostgreSQL Partitioning
 
-- **Single Database:** All partitions reside in `ddx_hapifhir` database
+- **Single Database:** All partitions reside in `ddx_fhir_core` database
 - **Schema Separation:** Each partition has isolated tables
 - **Connection Pooling:** HikariCP manages connections
 - **Indexing:** Optimized for FHIR search parameters

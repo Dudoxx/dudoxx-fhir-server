@@ -52,7 +52,7 @@ mvn clean package -DskipTests
 ### Step 4: Verify Partition
 
 ```bash
-psql -U dudoxx_user -d ddx_hapifhir -c "SELECT * FROM HFJ_PARTITION;"
+psql -U dudoxx_user -d ddx_fhir_core -c "SELECT * FROM HFJ_PARTITION;"
 ```
 
 ---

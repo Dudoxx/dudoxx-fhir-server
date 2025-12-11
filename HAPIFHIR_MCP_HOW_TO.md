@@ -99,7 +99,7 @@ Enable prompts capabilities, notification: true
                      │ FHIR REST API
                      ▼
 ┌─────────────────────────────────────────────────────────┐
-│         POSTGRESQL (ddx_hapifhir)                        │
+│         POSTGRESQL (ddx_fhir_core)                        │
 │  Partitioned: Hamburg, Berlin, Munich, etc.             │
 └─────────────────────────────────────────────────────────┘
 ```
@@ -680,7 +680,7 @@ User selects this prompt, AI executes entire workflow automatically
                           ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │              POSTGRESQL DATABASE (Port 5432)                     │
-│                     Database: ddx_hapifhir                       │
+│                     Database: ddx_fhir_core                       │
 │                                                                  │
 │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
 │  │  HFJ_RESOURCE   │  │  HFJ_RES_VER   │  │  HFJ_PARTITION  │ │
@@ -1443,7 +1443,7 @@ Top 5 patients needing intervention:
 
 **Setup:**
 
-**File:** `dudoxx-api-clinic/src/modules/ai/fhir-ai.service.ts`
+**File:** `ddx-api/src/modules/ai/fhir-ai.service.ts`
 
 ```typescript
 import { Injectable } from '@nestjs/common';
@@ -1837,7 +1837,7 @@ public class McpAuditInterceptor {
 
 **Add to Logging Database:**
 
-Store in `ddx_clinic_fhir_logging` database:
+Store in `ddx_api_log` database:
 
 ```sql
 CREATE TABLE mcp_audit_log (
@@ -2115,7 +2115,7 @@ Tools:
 
 ```bash
 # Clone repository
-cd dudoxx-fhir-server
+cd ddx-fhir
 
 # Ensure server is running
 ./start-server.sh
@@ -2767,7 +2767,7 @@ hapi:
 **Verify Partitions Exist:**
 
 ```bash
-psql -U dudoxx_user -d ddx_hapifhir -c "SELECT * FROM HFJ_PARTITION;"
+psql -U dudoxx_user -d ddx_fhir_core -c "SELECT * FROM HFJ_PARTITION;"
 ```
 
 **Expected Output:**

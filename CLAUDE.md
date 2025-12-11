@@ -9,7 +9,7 @@
 | Item | Value |
 |------|-------|
 | Tech | HAPI FHIR 8.4.0, Java 17+, Spring Boot, PostgreSQL |
-| Database | `ddx_hapifhir` on port 5432 |
+| Database | `ddx_fhir_core` on port 5432 |
 | Auth | Bearer `ddx-api-token-2024` + `X-Clinic-ID` header |
 | Called By | NestJS (4100) only |
 | NEVER Called By | Browser, Next.js |
