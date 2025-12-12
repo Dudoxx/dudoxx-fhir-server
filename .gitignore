@@ -172,3 +172,4 @@ Temporary Items
 .env
 .env.local
 .env.*.local
+fhir-server.pid
