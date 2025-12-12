@@ -510,7 +510,7 @@ User selects this prompt, AI executes entire workflow automatically
 // Find appointments for practitioner
 {
   "resourceType": "Appointment",
-  "query": "practitioner=Practitioner/Dr-Schmidt,date=ge2025-12-01"
+  "query": "practitioner=Practitioner/Dr-Schmidt,date=ge2025-12-12"
 }
 ```
 
@@ -1087,7 +1087,7 @@ Dr. Weber on December 1st at 10:00 AM"
    ```json
    {
      "resourceType": "Appointment",
-     "query": "practitioner=Practitioner/Dr-Weber,date=2025-12-01,status=booked"
+     "query": "practitioner=Practitioner/Dr-Weber,date=2025-12-12,status=booked"
    }
    ```
 
@@ -1097,7 +1097,7 @@ Dr. Weber on December 1st at 10:00 AM"
    ```
    ⚠️ SCHEDULING CONFLICT
 
-   Dr. Weber's Schedule - December 1, 2025:
+   Dr. Weber's Schedule - December 12, 2025:
 
    10:00 AM - FULL (2 patients already booked)
    ├─ 10:00 - Patient: Mueller, Hans (Follow-up)
@@ -3007,7 +3007,7 @@ curl -X POST http://localhost:8080/mcp/message \
 **Version:** 1.0.0
 **Last Updated:** November 25, 2025
 **Maintained By:** Dudoxx UG
-**Contact:** Walid Boudabbous (CTO)
+**Contact:** Walid Boudabbous, Founder and CTO of Dudoxx, CEO of Acceleate.com
 
 ---
 

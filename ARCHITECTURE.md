@@ -1,7 +1,7 @@
 # HAPI FHIR Server Architecture
 
 **Version:** 1.0.0
-**Date:** December 8, 2025
+**Date:** December 12, 2025
 **Owner:** Dudoxx UG
 
 ---
@@ -205,4 +205,4 @@ services:
 ---
 
 **Maintained by:** Dudoxx UG
-**Last Updated:** December 8, 2025
+**Last Updated:** December 12, 2025

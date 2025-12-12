@@ -1,7 +1,7 @@
 # Important API Patterns - HAPI FHIR Server
 
 **Version:** 1.0.0
-**Date:** December 8, 2025
+**Date:** December 12, 2025
 **Owner:** Dudoxx UG
 
 ---
@@ -332,4 +332,4 @@ GET /fhir/metadata
 ---
 
 **Maintained by:** Dudoxx UG
-**Last Updated:** December 8, 2025
+**Last Updated:** December 12, 2025
