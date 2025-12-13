@@ -137,34 +137,43 @@ curl http://localhost:8080/actuator/health
 ### System Overview
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                  Dudoxx Platform                         │
-├─────────────────────────────────────────────────────────┤
-│                                                          │
-│  Browser → Next.js (4000) → NestJS (4100) → HAPI FHIR   │
-│                              ↓                           │
-│                         X-Clinic-ID                      │
-│                              ↓                           │
-│                    ClinicPartitionInterceptor            │
-│                              ↓                           │
-│              ┌───────────────┴───────────────┐          │
-│              │    Partition-Based Tenancy    │          │
-│              └───────────────┬───────────────┘          │
-│                              ↓                           │
-│                      PostgreSQL (5432)                   │
-│                     ddx_fhir_core (58 tables)            │
-│                                                          │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                    Dudoxx Platform                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  Browser → Next.js (4000) → NestJS (4100) → HAPI FHIR (8080)│
+│                              ↓                               │
+│                         X-Clinic-ID                          │
+│                              ↓                               │
+│                  ClinicPartitionInterceptor                  │
+│                              ↓                               │
+│                   TenantRegistryService                      │
+│                     (In-Memory Cache)                        │
+│                              ↓                               │
+│              ┌───────────────┴────────────────┐             │
+│              │                                 │             │
+│    ddx_api_main (Tenant Registry)   ddx_fhir_core (FHIR)   │
+│    - organizations table             - 58 HAPI tables       │
+│    - global_config                   - Partition isolation  │
+│    - partition_sequence              - Resource storage     │
+│              │                                 │             │
+│              └────────── PostgreSQL (5432) ───┘             │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### Multi-Tenancy Design
 
-- **Partitions**: 7 partitions (0-6) for complete data isolation
-- **Dynamic Routing**: X-Clinic-ID header maps to partition ID
+- **Partitions**: Dynamic partition allocation via database registry
+- **Dynamic Routing**: X-Clinic-ID header maps to partition ID via TenantRegistryService
 - **Authentication**: Bearer token validation
-- **Database**: Single PostgreSQL database with partition column
+- **Dual Database**:
+  - `ddx_fhir_core` - FHIR resource storage with partition isolation
+  - `ddx_api_main` - Tenant registry (managed by NestJS)
+- **Auto-Refresh**: Tenant cache refreshes every 60 seconds
+- **REST API**: `/admin/tenants/*` endpoints for tenant management
 
-See [IMPORTANT.md](../IMPORTANT.md#multi-tenancy-architecture) for details.
+See [IMPORTANT.md](../IMPORTANT.md#multi-tenancy-architecture) and [ARCHITECTURE.md](../ARCHITECTURE.md#database-architecture) for details.
 
 ---
 
@@ -232,7 +241,23 @@ X-Clinic-ID: ddx-hamburg-clinic
 ```bash
 GET /fhir/metadata           # Capability statement
 GET /actuator/health         # Server health
-GET /admin/tenants/health    # Tenant health
+GET /admin/tenants/health    # Tenant registry health check
+```
+
+#### Tenant Admin Endpoints (Requires Auth)
+
+```bash
+POST   /admin/tenants/refresh              # Force reload tenant cache
+POST   /admin/tenants/register             # Register single tenant
+GET    /admin/tenants                      # List all cached tenants
+GET    /admin/tenants/{slug}               # Check if tenant exists
+DELETE /admin/tenants/{slug}               # Remove tenant from cache
+```
+
+**Example - Refresh Tenant Cache:**
+```bash
+curl -X POST http://localhost:8080/admin/tenants/refresh \
+  -H "Authorization: Bearer ddx-api-token-2024"
 ```
 
 #### CRUD Operations
@@ -486,10 +511,12 @@ const patient = await client.create('Patient', {
 - Connection pool optimization
 
 **Database:**
-- PostgreSQL primary database (ddx_fhir_core)
-- Tenant registry database (ddx_api_main)
-- 58 FHIR tables (hfj_* schema)
-- 7 clinic partitions initialized
+- PostgreSQL dual database architecture:
+  - Primary: `ddx_fhir_core` (FHIR resources, 58 tables)
+  - Secondary: `ddx_api_main` (Tenant registry, read-only)
+- Dynamic partition allocation via `organizations` table
+- HikariCP connection pooling (10 for FHIR, 3 for tenants)
+- Automatic tenant cache refresh every 60 seconds
 
 ---
 

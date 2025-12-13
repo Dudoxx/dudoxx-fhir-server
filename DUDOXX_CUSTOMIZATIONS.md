@@ -24,19 +24,21 @@ This document details all custom modifications made to the upstream HAPI FHIR JP
 **Features**:
 - Intercepts all FHIR requests (READ, CREATE, UPDATE, DELETE)
 - Extracts clinic ID from `X-Clinic-ID` header
-- Maps clinic IDs to partition IDs
+- Uses `TenantRegistryService` for dynamic partition ID lookup
 - Enforces strict data isolation between clinics
 - Throws `AuthenticationException` for missing/invalid clinic IDs
+- Supports system operations (subscriptions, search parameters) via DEFAULT partition
 
-**Clinic Mapping**:
-```java
-ddx-hamburg-clinic  → Partition 1
-ddx-berlin-clinic   → Partition 2
-ddx-munich-clinic   → Partition 3
-ddx-frankfurt-clinic → Partition 4
-ddx-cologne-clinic  → Partition 5
-default             → Partition 0 (system)
-```
+**Tenant Identification Methods**:
+1. `X-Clinic-ID` header (primary method)
+2. Subdomain parsing (e.g., hamburg.fhir.dudoxx.com)
+3. URL path extraction (e.g., /fhir/clinic/hamburg/Patient)
+
+**Partition Assignment**:
+- Dynamic lookup via `TenantRegistryService.getPartitionId(clinicSlug)`
+- Reads from `organizations` table in `ddx_api_main` database
+- Falls back to DEFAULT partition (0) for system operations
+- Cache refreshes every 60 seconds automatically
 
 #### ApiTokenAuthInterceptor.java
 **Path**: `src/main/java/ca/uhn/fhir/jpa/starter/interceptor/ApiTokenAuthInterceptor.java`
@@ -66,6 +68,49 @@ hapi.fhir.auth.api_token: ddx-api-token-2024
 - Creates 6 partitions in `HFJ_PARTITION` table
 - Idempotent with `ON CONFLICT DO NOTHING`
 - Maps partition IDs to clinic names
+
+### 3. Tenant Registry Service
+
+#### TenantRegistryService.java
+**Path**: `src/main/java/ca/uhn/fhir/jpa/starter/tenant/TenantRegistryService.java`
+
+**Purpose**: Dynamic tenant management via database-backed registry
+
+**Features**:
+- Reads tenant mappings from NestJS `ddx_api_main` database
+- Caches clinic slug to partition ID mappings
+- Auto-refreshes cache every 60 seconds (configurable)
+- Queries `organizations` table for active clinics
+- Supports dynamic tenant creation without FHIR server restart
+
+**Database Tables Used** (from `ddx_api_main`):
+- `organizations`: Contains `slug`, `fhirPartitionId`, and `isActive` fields
+- `global_config`: System-wide configuration settings
+- `partition_sequence`: Next available partition ID for new clinics
+
+#### TenantDataSourceConfig.java
+**Path**: `src/main/java/ca/uhn/fhir/jpa/starter/tenant/TenantDataSourceConfig.java`
+
+**Purpose**: Secondary datasource configuration for tenant registry
+
+**Features**:
+- Configures separate HikariCP connection pool for `ddx_api_main`
+- Pool name: `TenantRegistryPool`
+- Default: 3 max connections, 1 minimum idle
+- Read-only access to NestJS database tables
+
+#### TenantAdminController.java
+**Path**: `src/main/java/ca/uhn/fhir/jpa/starter/tenant/TenantAdminController.java`
+
+**Purpose**: REST API for tenant cache management
+
+**Endpoints**:
+- `POST /admin/tenants/refresh` - Force cache reload
+- `POST /admin/tenants/register` - Register single tenant
+- `GET /admin/tenants` - List all cached tenants
+- `GET /admin/tenants/{slug}` - Check tenant existence
+- `DELETE /admin/tenants/{slug}` - Remove from cache
+- `GET /admin/tenants/health` - Health check (public)
 
 ---
 
@@ -155,7 +200,7 @@ hapi:
 **Disabled**:
 - Validation (can be enabled per environment)
 - MDM (Master Data Management)
-- Lucene/Elasticsearch search
+- Lucene/Elasticsearch search (using database-based search instead)
 
 #### E. Cleanup
 - Removed ~150 lines of comments
@@ -178,29 +223,55 @@ Client Request
     │
     ├─→ ClinicPartitionInterceptor
     │   ├─ Extracts X-Clinic-ID header
-    │   ├─ Maps clinic ID to partition ID
+    │   ├─ Queries TenantRegistryService for partition ID
+    │   │   └─ Reads from in-memory cache (refreshed every 60s)
     │   ├─ Throws 401 if clinic ID missing/invalid
     │   └─ Sets RequestPartitionId
     │
     ├─→ HAPI FHIR Core
     │   └─ Processes request in assigned partition
     │
-    └─→ PostgreSQL Database
+    └─→ PostgreSQL Database (ddx_fhir_core)
         └─ Data stored/retrieved from partition
+```
+
+### Dual Database Architecture
+
+HAPI FHIR uses **two PostgreSQL datasources**:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    HAPI FHIR Server (8080)                   │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  TenantRegistryService (Reads tenant mappings)              │
+│         │                                                    │
+│         ├─→ Secondary Datasource: ddx_api_main              │
+│         │   - organizations (slug, fhirPartitionId)         │
+│         │   - global_config (system settings)               │
+│         │   - partition_sequence (next partition ID)        │
+│         │   - Pool: TenantRegistryPool (3 connections)      │
+│         │                                                    │
+│  HAPI FHIR JPA (Stores FHIR resources)                      │
+│         │                                                    │
+│         └─→ Primary Datasource: ddx_fhir_core               │
+│             - hfj_resource (FHIR resources)                  │
+│             - hfj_partition (Partition metadata)             │
+│             - hfj_res_* (Resource indices)                   │
+│             - Pool: HapiFhirHikariPool (10 connections)     │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### Database Schema
 
+**PostgreSQL: ddx_fhir_core** (Primary - HAPI FHIR JPA)
 ```
-PostgreSQL: ddx_fhir_core
-│
 ├─ HFJ_PARTITION (Partition definitions)
 │  ├─ PART_ID=0, PART_NAME=DEFAULT
 │  ├─ PART_ID=1, PART_NAME=HAMBURG
 │  ├─ PART_ID=2, PART_NAME=BERLIN
-│  ├─ PART_ID=3, PART_NAME=MUNICH
-│  ├─ PART_ID=4, PART_NAME=FRANKFURT
-│  └─ PART_ID=5, PART_NAME=COLOGNE
+│  └─ ... (dynamically created)
 │
 ├─ HFJ_RESOURCE (All FHIR resources)
 │  └─ PARTITION_ID → references HFJ_PARTITION
@@ -208,8 +279,31 @@ PostgreSQL: ddx_fhir_core
 ├─ HFJ_RES_VER (Resource versions)
 │  └─ PARTITION_ID → references HFJ_PARTITION
 │
-└─ ... (all other HAPI FHIR tables with PARTITION_ID)
+└─ ... (58 total HAPI FHIR tables with PARTITION_ID)
 ```
+
+**PostgreSQL: ddx_api_main** (Secondary - Tenant Registry, Read-Only)
+```
+├─ organizations
+│  ├─ id (UUID)
+│  ├─ slug (VARCHAR) - e.g., "ddx-hamburg-clinic"
+│  ├─ fhirPartitionId (INTEGER) - e.g., 1
+│  └─ isActive (BOOLEAN)
+│
+├─ global_config
+│  ├─ key (VARCHAR) - e.g., "fhir.api_token"
+│  └─ value (TEXT)
+│
+└─ partition_sequence
+   └─ nextval (INTEGER) - Auto-increment for new partitions
+```
+
+**Data Flow**:
+1. NestJS creates organization in `ddx_api_main` with `fhirPartitionId`
+2. NestJS calls `POST /admin/tenants/refresh` on HAPI FHIR
+3. `TenantRegistryService` reads `organizations` table
+4. `ClinicPartitionInterceptor` routes requests via cached partition mapping
+5. HAPI FHIR JPA stores/retrieves data in `ddx_fhir_core` partitions
 
 ---
 

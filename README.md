@@ -21,11 +21,13 @@ This is a **Dudoxx-customized fork** of the official [HAPI FHIR JPA Server Start
 ### 🎯 Key Dudoxx Enhancements
 
 - ✅ **Multi-Tenancy** - Complete data isolation between clinics using partition-based architecture
+- ✅ **Dynamic Tenant Registry** - Database-backed tenant management without server restart
+- ✅ **Dual Database Architecture** - Separate databases for FHIR resources and tenant registry
 - ✅ **Authentication** - API token-based authentication with Bearer tokens
 - ✅ **PostgreSQL Backend** - Production-ready database with optimized Hibernate dialect
-- ✅ **Clinic Management** - Support for multiple clinics (Hamburg, Berlin, Munich, Frankfurt, Cologne)
+- ✅ **Clinic Management** - Support for unlimited clinics with dynamic allocation
 - ✅ **TypeScript Client** - Full-featured REST client with type-safe operations
-- ✅ **Security Interceptors** - Custom interceptors for authentication and partition routing
+- ✅ **Security Interceptors** - Custom interceptors for authentication and dynamic partition routing
 
 ### 📚 Upstream Credits & Synchronization
 
@@ -54,14 +56,20 @@ This project builds upon the excellent work of the HAPI FHIR team:
 ### 1. Database Setup
 
 ```bash
-# Create PostgreSQL database
+# Create FHIR database (primary)
 psql -U postgres -c "CREATE DATABASE ddx_fhir_core;"
 psql -U postgres -c "CREATE USER dudoxx_user WITH PASSWORD 'admin';"
 psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE ddx_fhir_core TO dudoxx_user;"
 
-# Initialize partitions
+# Create tenant registry database (managed by NestJS)
+psql -U postgres -c "CREATE DATABASE ddx_api_main;"
+psql -U postgres -c "GRANT ALL PRIVILEGES ON DATABASE ddx_api_main TO dudoxx_user;"
+
+# Initialize FHIR partitions
 psql -U dudoxx_user -d ddx_fhir_core -f src/main/resources/init-partitions.sql
 ```
+
+**Note:** The `ddx_api_main` database is primarily managed by the NestJS backend. HAPI FHIR only reads from the `organizations` table to populate the tenant cache.
 
 ### 2. Start the Server
 
