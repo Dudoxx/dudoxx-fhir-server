@@ -5,6 +5,11 @@ Project-specific guidance for `ddx-fhir` (HAPI FHIR JPA). Keep auth + partition 
 **Version:** HAPI 8.4.0 / Java 17  
 **Last Updated:** 2025-11-24
 
+## Repo Policy
+
+- Default branch: `main`
+- This repository is used as a submodule of `dudoxx-hapifihr` (see `../.gitmodules`)
+
 ---
 
 ## Stack & Runtime Facts

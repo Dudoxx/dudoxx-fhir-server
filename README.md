@@ -8,6 +8,11 @@
   <strong>Port:</strong> 8080 | <strong>FHIR R4</strong> | <strong>Multi-Tenant</strong>
 </p>
 
+## Repo Policy
+
+- Default branch: `main`
+- This repository is used as a submodule of `dudoxx-hapifihr` (see `../.gitmodules`)
+
 <p align="center">
   A production-ready FHIR R4 server with multi-tenant clinic isolation, authentication, and PostgreSQL backend.
 </p>

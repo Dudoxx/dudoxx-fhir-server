@@ -2,6 +2,11 @@
 
 **Version:** 6.0.0 | **Date:** December 12, 2025 | **Port:** 8080
 
+## Repo Policy
+
+- Default branch: `main`
+- This repository is used as a submodule of `dudoxx-hapifihr` (see `../.gitmodules`)
+
 **Author:** Walid Boudabbous, Founder and CTO of Dudoxx UG, CEO of Acceleate.com
 
 ---

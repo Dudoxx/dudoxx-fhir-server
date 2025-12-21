@@ -2,6 +2,11 @@
 
 **Version:** 1.1.0 | **Port:** 8080 | **Owner:** Dudoxx UG
 
+## Repo Policy
+
+- Default branch: `main`
+- This repository is used as a submodule of `dudoxx-hapifihr` (see `../.gitmodules`)
+
 ---
 
 ## Quick Reference
