@@ -2118,7 +2118,7 @@ Tools:
 cd ddx-fhir
 
 # Ensure server is running
-./start-server.sh
+./06_ddx-start-fhir.sh
 
 # Verify MCP endpoint
 curl http://localhost:8080/mcp/message
@@ -2691,7 +2691,7 @@ tail -f logs/hapi-fhir.log
 grep "mcp.server.enabled" src/main/resources/application.yaml
 
 # Restart server
-./stop-server.sh && ./start-server.sh
+./stop-server.sh && ./06_ddx-start-fhir.sh
 ```
 
 ---
@@ -2863,7 +2863,7 @@ spring:
 
 ```bash
 mvn clean package -DskipTests
-./stop-server.sh && ./start-server.sh
+./stop-server.sh && ./06_ddx-start-fhir.sh
 ```
 
 **Verify Disabled:**

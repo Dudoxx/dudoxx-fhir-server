@@ -120,10 +120,10 @@ PG_PASSWORD=admin
 PG_DATABASE_TENANT=ddx_api_main
 
 # Connection Pool Configuration
-FHIR_POOL_MAX_SIZE=10
-FHIR_POOL_MIN_IDLE=5
-TENANT_POOL_MAX_SIZE=3
-TENANT_POOL_MIN_IDLE=1
+FHIR_POOL_MAX_SIZE=20
+FHIR_POOL_MIN_IDLE=10
+TENANT_POOL_MAX_SIZE=5
+TENANT_POOL_MIN_IDLE=2
 
 # HAPI FHIR Configuration
 FHIR_AUTH_ENABLED=true
@@ -190,10 +190,10 @@ mvn test -Dtest=YourTestClass
 cd /path/to/dudoxx-hapifihr
 
 # Start in foreground (Ctrl+C to stop)
-./start-server.sh
+./06_ddx-start-fhir.sh
 
 # Start in background (daemon mode)
-./start-server.sh --daemon
+./06_ddx-start-fhir.sh --daemon
 
 # Stop daemon
 ./stop-server.sh

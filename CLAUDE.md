@@ -105,8 +105,8 @@ HAPI FHIR is configured with **two separate PostgreSQL connections**:
 
 | Datasource | Database | Purpose | Pool |
 |------------|----------|---------|------|
-| **Primary** | `ddx_fhir_core` | FHIR resources (hfj_* tables) | HapiFhirHikariPool (10 conn) |
-| **Tenant** | `ddx_api_main` | Read org configs from NestJS | TenantRegistryPool (3 conn) |
+| **Primary** | `ddx_fhir_core` | FHIR resources (hfj_* tables) | HapiFhirHikariPool (20 conn) |
+| **Tenant** | `ddx_api_main` | Read org configs from NestJS | TenantRegistryPool (5 conn) |
 
 ### Configuration Files
 
@@ -189,4 +189,4 @@ On cache miss, it performs ONE immediate DB refresh before returning null.
 
 ---
 
-**Last Updated:** December 12, 2025
+**Last Updated:** December 28, 2025

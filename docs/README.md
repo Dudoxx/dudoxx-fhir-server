@@ -57,7 +57,7 @@ EOF
 
 # 4. Start server
 cd ..
-./start-server.sh
+./06_ddx-start-fhir.sh
 
 # 5. Test
 curl http://localhost:8080/actuator/health
@@ -325,10 +325,10 @@ mvn spring-boot:run
 
 # Run with startup script (recommended)
 cd ..
-./start-server.sh
+./06_ddx-start-fhir.sh
 
 # Run in daemon mode
-./start-server.sh --daemon
+./06_ddx-start-fhir.sh --daemon
 
 # Stop daemon
 ./stop-server.sh

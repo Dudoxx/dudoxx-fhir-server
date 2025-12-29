@@ -402,7 +402,7 @@ sed -i '' "s/PG_PASSWORD=.*/PG_PASSWORD=$NEW_PASSWORD/" .env
 
 # Restart server
 ./stop-server.sh
-./start-server.sh
+./06_ddx-start-fhir.sh
 ```
 
 ### 4. Least Privilege Principle
@@ -460,7 +460,7 @@ FHIR_POOL_MIN_IDLE=10
 
 # Restart server
 ./stop-server.sh
-./start-server.sh
+./06_ddx-start-fhir.sh
 
 # Monitor connections
 psql -U dudoxx_user -d ddx_fhir_core -c "SELECT count(*) FROM pg_stat_activity WHERE datname='ddx_fhir_core';"

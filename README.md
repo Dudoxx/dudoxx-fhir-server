@@ -83,7 +83,7 @@ psql -U dudoxx_user -d ddx_fhir_core -f src/main/resources/init-partitions.sql
 cd ..
 
 # Start server (from parent directory)
-./start-server.sh
+./06_ddx-start-fhir.sh
 ```
 
 The server will be available at:
@@ -184,8 +184,8 @@ hapi:
   fhir:
     partitioning:
       enabled: true
-      allow_references_across_partitions: false
-      partitioning_include_in_search_hashes: true
+      allow_references_across_partitions: true
+      partitioning_include_in_search_hashes: false
       default_partition_id: 0
 ```
 

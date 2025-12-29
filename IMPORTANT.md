@@ -507,7 +507,7 @@ rm -rf target/
 mvn package -DskipTests
 
 # Start fresh
-./start-server.sh
+./06_ddx-start-fhir.sh
 ```
 
 ### 2. Data Corruption
@@ -523,7 +523,7 @@ psql -U dudoxx_user -h localhost -d ddx_fhir_core < backup_latest.sql
 psql -U dudoxx_user -d ddx_fhir_core -c "SELECT * FROM hfj_partition;"
 
 # Start server
-./start-server.sh
+./06_ddx-start-fhir.sh
 ```
 
 ### 3. Performance Degradation
@@ -534,7 +534,7 @@ psql -U dudoxx_user -d ddx_fhir_core -c "VACUUM FULL ANALYZE;"
 
 # Restart server
 ./stop-server.sh
-./start-server.sh
+./06_ddx-start-fhir.sh
 
 # Monitor metrics
 curl http://localhost:8080/actuator/metrics

@@ -46,7 +46,7 @@ private static final Map<String, Integer> CLINIC_PARTITION_MAP = Map.of(
 
 ```bash
 mvn clean package -DskipTests
-./stop-server.sh && ./start-server.sh
+./stop-server.sh && ./06_ddx-start-fhir.sh
 ```
 
 ### Step 4: Verify Partition
