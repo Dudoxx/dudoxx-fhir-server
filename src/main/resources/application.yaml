@@ -128,12 +128,12 @@ spring:
 
   # -------------------------------------------------------------------------------
   # Secondary Datasource for Tenant Registry (NestJS ddx_api_main database)
-  # Environment variables: PG_HOST, PG_PORT, PG_USER, PG_PASSWORD, PG_DATABASE_TENANT
+  # Environment variables: PG_HOST_TENANT, PG_PORT, PG_USER_TENANT, PG_PASSWORD_TENANT, PG_DATABASE_TENANT
   # -------------------------------------------------------------------------------
   tenant-datasource:
-    url: jdbc:postgresql://${PG_HOST:localhost}:${PG_PORT:5432}/${PG_DATABASE_TENANT:ddx_api_main}
-    username: ${PG_USER:dudoxx_user}
-    password: ${PG_PASSWORD:admin}
+    url: jdbc:postgresql://${PG_HOST_TENANT:localhost}:${PG_PORT:5432}/${PG_DATABASE_TENANT:ddx_api_main}
+    username: ${PG_USER_TENANT:dudoxx_user}
+    password: ${PG_PASSWORD_TENANT:admin}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: ${TENANT_POOL_MAX_SIZE:3}
